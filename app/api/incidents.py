@@ -9,6 +9,7 @@ from app.schemas.incident import (
 )
 from app.services.incident import IncidentService
 from app.core.database import get_db
+from app.websocket import connection_manager
 
 router = APIRouter(prefix="/incidents", tags=["incidents"])
 
@@ -27,6 +28,10 @@ async def create_incident(
     - **description**: Detailed description (optional)
     """
     incident = IncidentService.create_incident(db, incident_data)
+    await connection_manager.broadcast({
+        "type": "incident_created",
+        "payload": incident,
+    })
     return incident
 
 
