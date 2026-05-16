@@ -48,6 +48,8 @@ class BackgroundTaskManager:
                 await self.monitoring_task
             except asyncio.CancelledError:
                 pass
+            finally:
+                self.monitoring_task = None
 
 
 # Global task manager instance
