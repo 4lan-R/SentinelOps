@@ -1,10 +1,17 @@
+from pathlib import Path
+
 from fastapi import FastAPI, WebSocket
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.websockets import WebSocketDisconnect
 from app.api.incidents import router as incidents_router
+from app.api.logs import router as logs_router
 from app.api.monitoring import router as monitoring_router
 from app.core.database import init_db
 from app.websocket import connection_manager
 from app.tasks import lifespan
+
+BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(
     title="SentinelOps API",
@@ -13,11 +20,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+
 # Initialize database on startup
 init_db()
 
 # Include routers
 app.include_router(incidents_router)
+app.include_router(logs_router)
 app.include_router(monitoring_router)
 
 
@@ -33,6 +43,11 @@ async def websocket_alerts(websocket: WebSocket):
 
 @app.get("/")
 async def root():
+    return FileResponse(BASE_DIR / "static" / "index.html")
+
+
+@app.get("/api")
+async def api_root():
     return {"message": "AI DevOps Agent Running 🚀"}
 
 

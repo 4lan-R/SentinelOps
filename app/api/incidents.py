@@ -7,7 +7,9 @@ from app.schemas.incident import (
     SeverityUpdate,
     IncidentResponse
 )
+from app.schemas.log import LogResponse
 from app.services.incident import IncidentService
+from app.services.log import LogService
 from app.services.ai import AnalysisResult
 from app.core.database import get_db
 from app.websocket import connection_manager
@@ -102,6 +104,22 @@ async def get_incident(
     if not incident:
         raise HTTPException(status_code=404, detail=f"Incident {incident_id} not found")
     return incident
+
+
+@router.get("/{incident_id}/logs", response_model=List[LogResponse])
+async def get_incident_logs(
+    incident_id: int,
+    query: Optional[str] = Query(None, description="Optional text query for incident logs"),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+) -> List[dict]:
+    """Get logs attached to or correlated with a specific incident."""
+    incident = IncidentService.get_incident(db, incident_id)
+    if not incident:
+        raise HTTPException(status_code=404, detail=f"Incident {incident_id} not found")
+    logs = LogService.get_logs_for_incident(db, incident_id, query=query, limit=limit, offset=offset)
+    return logs
 
 
 @router.put("/{incident_id}", response_model=IncidentResponse)

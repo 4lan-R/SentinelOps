@@ -67,6 +67,9 @@ The monitoring simulator runs as a background task that:
 3. **Monitoring API** (`app/api/monitoring.py`)
    - `/monitoring/metrics` - Get current metrics
    - `/monitoring/health` - System health status
+   - `/monitoring/status` - Get monitoring simulator status
+   - `POST /monitoring/start` - Start monitoring simulation
+   - `POST /monitoring/stop` - Stop monitoring simulation
 
 ## API Endpoints
 
@@ -137,7 +140,26 @@ GET /incidents/
 
 ### Stop Monitoring
 
-The simulator gracefully stops when you stop the server (Ctrl+C).
+The simulator gracefully stops when you stop the server (Ctrl+C), or you can stop it manually via the API:
+
+```bash
+POST /monitoring/stop
+```
+
+Response:
+```json
+{
+  "status": "stopped",
+  "message": "Monitoring simulator has been stopped.",
+  "running": false
+}
+```
+
+To restart it without restarting the app:
+
+```bash
+POST /monitoring/start
+```
 
 Console output:
 ```

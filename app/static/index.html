@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentinelOps Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">SentinelOps</p>
+        <h1>Operations Dashboard</h1>
+        <p class="subtitle">Live system metrics, incident tracking, and alert feed in one place.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="startMonitoring">Start Monitoring</button>
+        <button id="stopMonitoring" class="secondary">Stop Monitoring</button>
+      </div>
+    </header>
+
+    <section class="status-bar">
+      <div class="status-card">
+        <strong>Monitoring</strong>
+        <span id="monitoringStatus">Loading...</span>
+      </div>
+      <div class="status-card">
+        <strong>Last refresh</strong>
+        <span id="lastRefresh">--</span>
+      </div>
+      <div class="status-card">
+        <strong>Websocket</strong>
+        <span id="wsStatus">Connecting...</span>
+      </div>
+    </section>
+
+    <section class="grid-layout">
+      <article class="panel metrics-panel">
+        <div class="panel-header">
+          <h2>Live Metrics</h2>
+          <p>Current infrastructure health.</p>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span>CPU</span>
+            <strong id="cpuValue">--%</strong>
+          </div>
+          <div class="metric-card">
+            <span>Memory</span>
+            <strong id="memoryValue">--%</strong>
+          </div>
+          <div class="metric-card">
+            <span>API Error Rate</span>
+            <strong id="apiErrorRate">--%</strong>
+          </div>
+          <div class="metric-card">
+            <span>DB Latency</span>
+            <strong id="dbLatency">-- ms</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel incidents-panel">
+        <div class="panel-header">
+          <h2>Incidents</h2>
+          <p>Recent events and current status.</p>
+        </div>
+        <table class="incident-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Service</th>
+              <th>Severity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="incidentRows">
+            <tr><td colspan="5">Loading incidents...</td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="panel incident-detail-panel hidden" id="incidentDetailPanel">
+        <div class="panel-header">
+          <h2>Incident Details</h2>
+          <p>Select an incident to view incident metadata and linked logs.</p>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-card">
+            <dl>
+              <div>
+                <dt>ID</dt>
+                <dd id="detailId">--</dd>
+              </div>
+              <div>
+                <dt>Title</dt>
+                <dd id="detailTitle">--</dd>
+              </div>
+              <div>
+                <dt>Service</dt>
+                <dd id="detailService">--</dd>
+              </div>
+              <div>
+                <dt>Severity</dt>
+                <dd id="detailSeverity">--</dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd id="detailStatus">--</dd>
+              </div>
+              <div>
+                <dt>Created</dt>
+                <dd id="detailCreated">--</dd>
+              </div>
+              <div>
+                <dt>Updated</dt>
+                <dd id="detailUpdated">--</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="detail-card">
+            <p class="detail-heading">Description</p>
+            <p id="detailDescription">Select an incident to see the description.</p>
+          </div>
+        </div>
+        <div class="log-section">
+          <h3>Linked Logs</h3>
+          <ul id="incidentLogs" class="alert-feed">
+            <li>Select an incident to load logs.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="panel feed-panel">
+        <div class="panel-header">
+          <h2>Alert Feed</h2>
+          <p>Recent broadcast alerts from the system.</p>
+        </div>
+        <ul id="alertFeed" class="alert-feed">
+          <li>Waiting for alert events...</li>
+        </ul>
+      </article>
+    </section>
+  </div>
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

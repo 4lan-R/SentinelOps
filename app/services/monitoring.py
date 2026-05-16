@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.schemas.incident import IncidentCreate
 from app.services.incident import IncidentService
 from app.services.ai import AIIncidentAnalyzer
+from app.services.log import LogService
 
 
 class MonitoringSimulator:
@@ -83,7 +84,7 @@ class MonitoringSimulator:
         return base
 
     @staticmethod
-    def check_cpu_spike(db: Session) -> bool:
+    def check_cpu_spike(db: Session) -> dict | None:
         """Check for CPU spike and create incident if needed"""
         cpu_usage = MonitoringSimulator.get_cpu_usage()
 
@@ -104,6 +105,7 @@ class MonitoringSimulator:
                 service=service
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, service, incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -117,11 +119,11 @@ class MonitoringSimulator:
             except Exception as e:
                 print(f"AI analysis failed: {e}")
 
-            return True
-        return False
+            return incident
+        return None
 
     @staticmethod
-    def check_memory_leak(db: Session) -> bool:
+    def check_memory_leak(db: Session) -> dict | None:
         """Check for memory leak and create incident if needed"""
         memory_usage = MonitoringSimulator.get_memory_usage()
 
@@ -141,6 +143,7 @@ class MonitoringSimulator:
                 service=service
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, service, incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -154,11 +157,11 @@ class MonitoringSimulator:
             except Exception as e:
                 print(f"AI analysis failed: {e}")
 
-            return True
-        return False
+            return incident
+        return None
 
     @staticmethod
-    def check_api_failure(db: Session) -> bool:
+    def check_api_failure(db: Session) -> dict | None:
         """Check for API failures and create incident if needed"""
         error_rate = MonitoringSimulator.get_api_error_rate()
 
@@ -178,6 +181,7 @@ class MonitoringSimulator:
                 service=service
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, service, incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -191,11 +195,11 @@ class MonitoringSimulator:
             except Exception as e:
                 print(f"AI analysis failed: {e}")
 
-            return True
-        return False
+            return incident
+        return None
 
     @staticmethod
-    def check_db_latency(db: Session) -> bool:
+    def check_db_latency(db: Session) -> dict | None:
         """Check for database latency and create incident if needed"""
         latency = MonitoringSimulator.get_db_latency()
 
@@ -213,6 +217,7 @@ class MonitoringSimulator:
                 service="database"
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, "database", incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -226,8 +231,8 @@ class MonitoringSimulator:
             except Exception as e:
                 print(f"AI analysis failed: {e}")
 
-            return True
-        return False
+            return incident
+        return None
 
     @staticmethod
     def get_metrics() -> Dict[str, Any]:
