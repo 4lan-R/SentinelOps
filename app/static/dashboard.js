@@ -14,6 +14,16 @@ const elements = {
   lastRefresh: document.getElementById('lastRefresh'),
   wsStatus: document.getElementById('wsStatus'),
   incidentRows: document.getElementById('incidentRows'),
+  incidentDetailPanel: document.getElementById('incidentDetailPanel'),
+  detailId: document.getElementById('detailId'),
+  detailTitle: document.getElementById('detailTitle'),
+  detailService: document.getElementById('detailService'),
+  detailSeverity: document.getElementById('detailSeverity'),
+  detailStatus: document.getElementById('detailStatus'),
+  detailCreated: document.getElementById('detailCreated'),
+  detailUpdated: document.getElementById('detailUpdated'),
+  detailDescription: document.getElementById('detailDescription'),
+  incidentLogs: document.getElementById('incidentLogs'),
   alertFeed: document.getElementById('alertFeed'),
   startButton: document.getElementById('startMonitoring'),
   stopButton: document.getElementById('stopMonitoring'),
@@ -27,12 +37,21 @@ const api = {
   incidents: '/incidents',
 };
 
+function incidentRoute(id) {
+  return `/incidents/${id}`;
+}
+
+function incidentLogsRoute(id) {
+  return `/incidents/${id}/logs`;
+}
+
 function formatPercent(value) {
   return `${Math.round(value * 100) / 100}%`;
 }
 
 function createIncidentRow(incident) {
   const row = document.createElement('tr');
+  row.classList.add('clickable-row');
   row.innerHTML = `
     <td>${incident.id}</td>
     <td>${incident.title}</td>
@@ -40,6 +59,7 @@ function createIncidentRow(incident) {
     <td>${incident.severity}</td>
     <td>${incident.status}</td>
   `;
+  row.addEventListener('click', () => selectIncident(incident));
   return row;
 }
 
@@ -57,9 +77,61 @@ function updateIncidentTable(incidents) {
   });
 }
 
+function renderIncidentDetails(incident) {
+  elements.incidentDetailPanel.classList.remove('hidden');
+  elements.detailId.textContent = incident.id;
+  elements.detailTitle.textContent = incident.title;
+  elements.detailService.textContent = incident.service;
+  elements.detailSeverity.textContent = incident.severity;
+  elements.detailStatus.textContent = incident.status;
+  elements.detailCreated.textContent = new Date(incident.created_at).toLocaleString();
+  elements.detailUpdated.textContent = new Date(incident.updated_at).toLocaleString();
+  elements.detailDescription.textContent = incident.description || 'No description available.';
+}
+
+function renderIncidentLogs(logs) {
+  elements.incidentLogs.innerHTML = '';
+  if (!logs.length) {
+    const li = document.createElement('li');
+    li.textContent = 'No logs found for this incident.';
+    elements.incidentLogs.appendChild(li);
+    return;
+  }
+
+  logs.forEach((log) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${log.timestamp} • ${log.level} • ${log.service}</strong>
+      <span>${log.message}</span>
+    `;
+    elements.incidentLogs.appendChild(li);
+  });
+}
+
+async function refreshIncidentLogs(incidentId) {
+  try {
+    const logs = await fetchJson(incidentLogsRoute(incidentId));
+    renderIncidentLogs(logs);
+  } catch (error) {
+    console.error('Failed to load incident logs', error);
+    elements.incidentLogs.innerHTML = '<li>Unable to load incident logs.</li>';
+  }
+}
+
+async function selectIncident(incident) {
+  renderIncidentDetails(incident);
+  await refreshIncidentLogs(incident.id);
+}
+
 function pushAlert(message) {
+  if (message.type === 'incident_created') {
+    refreshIncidents();
+  }
+
   const item = document.createElement('li');
-  item.innerHTML = `<strong>${message.type || 'Alert'}</strong><span>${message.payload ? JSON.stringify(message.payload) : JSON.stringify(message)}</span>`;
+  const label = message.type || 'Alert';
+  const body = message.payload ? JSON.stringify(message.payload) : JSON.stringify(message);
+  item.innerHTML = `<strong>${label}</strong><span>${body}</span>`;
   elements.alertFeed.prepend(item);
   while (elements.alertFeed.children.length > 10) {
     elements.alertFeed.removeChild(elements.alertFeed.lastChild);

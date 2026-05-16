@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.core.database import SessionLocal
 from app.services.monitoring import MonitoringSimulator
+from app.websocket import connection_manager
 
 
 class BackgroundTaskManager:
@@ -26,10 +27,21 @@ class BackgroundTaskManager:
                 db = SessionLocal()
                 try:
                     # Check all monitoring metrics every 5 seconds
-                    MonitoringSimulator.check_cpu_spike(db)
-                    MonitoringSimulator.check_memory_leak(db)
-                    MonitoringSimulator.check_api_failure(db)
-                    MonitoringSimulator.check_db_latency(db)
+                    incident = MonitoringSimulator.check_cpu_spike(db)
+                    if incident:
+                        await connection_manager.broadcast({"type": "incident_created", "payload": incident})
+
+                    incident = MonitoringSimulator.check_memory_leak(db)
+                    if incident:
+                        await connection_manager.broadcast({"type": "incident_created", "payload": incident})
+
+                    incident = MonitoringSimulator.check_api_failure(db)
+                    if incident:
+                        await connection_manager.broadcast({"type": "incident_created", "payload": incident})
+
+                    incident = MonitoringSimulator.check_db_latency(db)
+                    if incident:
+                        await connection_manager.broadcast({"type": "incident_created", "payload": incident})
                 finally:
                     db.close()
 

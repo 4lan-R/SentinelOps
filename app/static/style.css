@@ -206,15 +206,69 @@ button.secondary {
 
 .incident-table tbody tr {
   border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.incident-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+  transform: translateX(2px);
+}
+
+.incident-table tbody tr.clickable-row {
+  cursor: pointer;
 }
 
 .incident-table td {
   font-size: 0.95rem;
 }
 
-.alert-feed {
-  list-style: none;
+.incident-detail-panel.hidden {
+  display: none;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+}
+
+.detail-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.detail-card dl {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.detail-card dt {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.detail-card dd {
   margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.detail-heading {
+  margin: 0 0 0.75rem 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.log-section {
+  margin-top: 1.5rem;
+}
+
+.log-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
   padding: 0;
   display: grid;
   gap: 0.75rem;

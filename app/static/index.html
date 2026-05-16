@@ -82,6 +82,57 @@
         </table>
       </article>
 
+      <article class="panel incident-detail-panel hidden" id="incidentDetailPanel">
+        <div class="panel-header">
+          <h2>Incident Details</h2>
+          <p>Select an incident to view incident metadata and linked logs.</p>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-card">
+            <dl>
+              <div>
+                <dt>ID</dt>
+                <dd id="detailId">--</dd>
+              </div>
+              <div>
+                <dt>Title</dt>
+                <dd id="detailTitle">--</dd>
+              </div>
+              <div>
+                <dt>Service</dt>
+                <dd id="detailService">--</dd>
+              </div>
+              <div>
+                <dt>Severity</dt>
+                <dd id="detailSeverity">--</dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd id="detailStatus">--</dd>
+              </div>
+              <div>
+                <dt>Created</dt>
+                <dd id="detailCreated">--</dd>
+              </div>
+              <div>
+                <dt>Updated</dt>
+                <dd id="detailUpdated">--</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="detail-card">
+            <p class="detail-heading">Description</p>
+            <p id="detailDescription">Select an incident to see the description.</p>
+          </div>
+        </div>
+        <div class="log-section">
+          <h3>Linked Logs</h3>
+          <ul id="incidentLogs" class="alert-feed">
+            <li>Select an incident to load logs.</li>
+          </ul>
+        </div>
+      </article>
+
       <article class="panel feed-panel">
         <div class="panel-header">
           <h2>Alert Feed</h2>
