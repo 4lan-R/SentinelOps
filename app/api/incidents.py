@@ -8,8 +8,28 @@ from app.schemas.incident import (
     IncidentResponse
 )
 from app.services.incident import IncidentService
+from app.services.ai import AnalysisResult
 from app.core.database import get_db
 from app.websocket import connection_manager
+from pydantic import BaseModel
+
+
+class IncidentAnalysisRequest(BaseModel):
+    """Request schema for incident analysis"""
+    logs: str
+    metrics: dict
+
+    class Config:
+        example = {
+            "logs": "[2024-01-15 10:30:45] ERROR redis: Connection timeout\n[2024-01-15 10:30:46] WARN api: 500 errors increasing",
+            "metrics": {
+                "cpu_usage": 95,
+                "memory_usage": 88,
+                "api_error_rate": 0.15,
+                "db_latency_ms": 2500
+            }
+        }
+
 
 router = APIRouter(prefix="/incidents", tags=["incidents"])
 
@@ -47,6 +67,25 @@ async def get_incidents(
     """
     incidents = IncidentService.get_all_incidents(db, status=status)
     return incidents
+
+
+@router.post("/analyze", response_model=AnalysisResult)
+async def analyze_incident(
+    analysis_request: IncidentAnalysisRequest
+) -> AnalysisResult:
+    """
+    Analyze incident logs and metrics using AI
+    
+    - **logs**: Raw log data as string
+    - **metrics**: Dictionary of current system metrics
+    """
+    analysis = IncidentService.analyze_incident(
+        analysis_request.logs,
+        analysis_request.metrics
+    )
+    if not analysis:
+        raise HTTPException(status_code=500, detail="AI analysis failed")
+    return analysis
 
 
 @router.get("/{incident_id}", response_model=IncidentResponse)

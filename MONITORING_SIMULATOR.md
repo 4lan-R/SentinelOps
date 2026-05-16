@@ -1,4 +1,4 @@
-# SentinalOps
+# Monitoring Simulator
 
 ## Overview
 

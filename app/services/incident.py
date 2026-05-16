@@ -2,6 +2,7 @@ from typing import Optional, List
 from sqlalchemy.orm import Session
 from app.models.incident import Incident
 from app.schemas.incident import IncidentCreate, IncidentUpdate
+from app.services.ai import AIIncidentAnalyzer, AnalysisResult
 
 
 class IncidentService:
@@ -21,6 +22,12 @@ class IncidentService:
         db.commit()
         db.refresh(incident)
         return incident.to_dict()
+
+    @staticmethod
+    def analyze_incident(logs: str, metrics: dict) -> AnalysisResult:
+        """Analyze incident using AI to provide insights"""
+        analyzer = AIIncidentAnalyzer()
+        return analyzer.analyze_incident(logs, metrics)
 
     @staticmethod
     def get_incident(db: Session, incident_id: int) -> Optional[dict]:

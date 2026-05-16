@@ -13,6 +13,7 @@ from typing import Dict, Any
 from sqlalchemy.orm import Session
 from app.schemas.incident import IncidentCreate
 from app.services.incident import IncidentService
+from app.services.ai import AIIncidentAnalyzer
 
 
 class MonitoringSimulator:
@@ -88,13 +89,34 @@ class MonitoringSimulator:
 
         if cpu_usage > MonitoringSimulator.CPU_THRESHOLD:
             service = random.choice(MonitoringSimulator.SERVICES)
+
+            # Generate sample logs for the incident
+            logs = MonitoringSimulator._generate_cpu_logs(service, cpu_usage)
+
+            # Get current metrics
+            metrics = MonitoringSimulator.get_metrics()
+
+            # Create incident
             incident_data = IncidentCreate(
                 title=f"High CPU Usage Detected on {service}",
                 description=f"CPU usage spiked to {cpu_usage}% (threshold: {MonitoringSimulator.CPU_THRESHOLD}%)",
                 severity="high",
                 service=service
             )
-            IncidentService.create_incident(db, incident_data)
+            incident = IncidentService.create_incident(db, incident_data)
+
+            # Perform AI analysis
+            try:
+                analyzer = AIIncidentAnalyzer()
+                analysis = analyzer.analyze_incident(logs, metrics)
+                if analysis:
+                    print(f"AI Analysis for incident {incident['id']}:")
+                    print(f"Possible causes: {analysis.possible_causes}")
+                    print(f"Recommended actions: {analysis.recommended_actions}")
+                    print(f"Confidence: {analysis.confidence_score}, Severity: {analysis.severity_assessment}")
+            except Exception as e:
+                print(f"AI analysis failed: {e}")
+
             return True
         return False
 
@@ -105,13 +127,33 @@ class MonitoringSimulator:
 
         if memory_usage > MonitoringSimulator.MEMORY_THRESHOLD:
             service = random.choice(MonitoringSimulator.SERVICES)
+
+            # Generate sample logs for the incident
+            logs = MonitoringSimulator._generate_memory_logs(service, memory_usage)
+
+            # Get current metrics
+            metrics = MonitoringSimulator.get_metrics()
+
             incident_data = IncidentCreate(
                 title=f"Memory Usage Critical on {service}",
                 description=f"Memory usage at {memory_usage}% (threshold: {MonitoringSimulator.MEMORY_THRESHOLD}%). Possible memory leak detected.",
                 severity="critical",
                 service=service
             )
-            IncidentService.create_incident(db, incident_data)
+            incident = IncidentService.create_incident(db, incident_data)
+
+            # Perform AI analysis
+            try:
+                analyzer = AIIncidentAnalyzer()
+                analysis = analyzer.analyze_incident(logs, metrics)
+                if analysis:
+                    print(f"AI Analysis for incident {incident['id']}:")
+                    print(f"Possible causes: {analysis.possible_causes}")
+                    print(f"Recommended actions: {analysis.recommended_actions}")
+                    print(f"Confidence: {analysis.confidence_score}, Severity: {analysis.severity_assessment}")
+            except Exception as e:
+                print(f"AI analysis failed: {e}")
+
             return True
         return False
 
@@ -122,13 +164,33 @@ class MonitoringSimulator:
 
         if error_rate > MonitoringSimulator.API_ERROR_RATE_THRESHOLD:
             service = random.choice(MonitoringSimulator.SERVICES)
+
+            # Generate sample logs for the incident
+            logs = MonitoringSimulator._generate_api_logs(service, error_rate)
+
+            # Get current metrics
+            metrics = MonitoringSimulator.get_metrics()
+
             incident_data = IncidentCreate(
                 title=f"API Failure Rate High on {service}",
                 description=f"Error rate: {error_rate*100:.2f}% (threshold: {MonitoringSimulator.API_ERROR_RATE_THRESHOLD*100:.1f}%)",
                 severity="high",
                 service=service
             )
-            IncidentService.create_incident(db, incident_data)
+            incident = IncidentService.create_incident(db, incident_data)
+
+            # Perform AI analysis
+            try:
+                analyzer = AIIncidentAnalyzer()
+                analysis = analyzer.analyze_incident(logs, metrics)
+                if analysis:
+                    print(f"AI Analysis for incident {incident['id']}:")
+                    print(f"Possible causes: {analysis.possible_causes}")
+                    print(f"Recommended actions: {analysis.recommended_actions}")
+                    print(f"Confidence: {analysis.confidence_score}, Severity: {analysis.severity_assessment}")
+            except Exception as e:
+                print(f"AI analysis failed: {e}")
+
             return True
         return False
 
@@ -138,13 +200,32 @@ class MonitoringSimulator:
         latency = MonitoringSimulator.get_db_latency()
 
         if latency > MonitoringSimulator.DB_LATENCY_THRESHOLD:
+            # Generate sample logs for the incident
+            logs = MonitoringSimulator._generate_db_logs(latency)
+
+            # Get current metrics
+            metrics = MonitoringSimulator.get_metrics()
+
             incident_data = IncidentCreate(
                 title="Database Latency Exceeded",
                 description=f"Database query latency: {latency}ms (threshold: {MonitoringSimulator.DB_LATENCY_THRESHOLD}ms). System performance may be affected.",
                 severity="medium",
                 service="database"
             )
-            IncidentService.create_incident(db, incident_data)
+            incident = IncidentService.create_incident(db, incident_data)
+
+            # Perform AI analysis
+            try:
+                analyzer = AIIncidentAnalyzer()
+                analysis = analyzer.analyze_incident(logs, metrics)
+                if analysis:
+                    print(f"AI Analysis for incident {incident['id']}:")
+                    print(f"Possible causes: {analysis.possible_causes}")
+                    print(f"Recommended actions: {analysis.recommended_actions}")
+                    print(f"Confidence: {analysis.confidence_score}, Severity: {analysis.severity_assessment}")
+            except Exception as e:
+                print(f"AI analysis failed: {e}")
+
             return True
         return False
 
@@ -157,3 +238,52 @@ class MonitoringSimulator:
             "api_error_rate": round(MonitoringSimulator.get_api_error_rate(), 4),
             "db_latency_ms": MonitoringSimulator.get_db_latency(),
         }
+
+    @staticmethod
+    def _generate_cpu_logs(service: str, cpu_usage: int) -> str:
+        """Generate sample logs for CPU spike incident"""
+        timestamp = "2024-01-15 10:30:45"
+        return f"""
+[{timestamp}] INFO {service}: CPU usage at {cpu_usage}%
+[{timestamp}] WARN {service}: High CPU load detected, spawning additional worker processes
+[{timestamp}] ERROR {service}: CPU throttle activated - system performance degraded
+[{timestamp}] WARN {service}: Request queue growing due to CPU bottleneck
+[{timestamp}] INFO {service}: Attempting to scale horizontally
+"""
+
+    @staticmethod
+    def _generate_memory_logs(service: str, memory_usage: int) -> str:
+        """Generate sample logs for memory leak incident"""
+        timestamp = "2024-01-15 10:30:45"
+        return f"""
+[{timestamp}] INFO {service}: Memory usage at {memory_usage}%
+[{timestamp}] WARN {service}: Garbage collection running frequently
+[{timestamp}] ERROR {service}: OutOfMemoryError in worker thread
+[{timestamp}] WARN {service}: Memory pressure causing request timeouts
+[{timestamp}] INFO {service}: Attempting emergency memory cleanup
+"""
+
+    @staticmethod
+    def _generate_api_logs(service: str, error_rate: float) -> str:
+        """Generate sample logs for API failure incident"""
+        timestamp = "2024-01-15 10:30:45"
+        error_percent = error_rate * 100
+        return f"""
+[{timestamp}] INFO {service}: API error rate: {error_percent:.2f}%
+[{timestamp}] ERROR {service}: HTTP 500 Internal Server Error - /api/users
+[{timestamp}] ERROR {service}: HTTP 502 Bad Gateway - /api/orders
+[{timestamp}] WARN {service}: Circuit breaker activated for downstream service
+[{timestamp}] INFO {service}: Retrying failed requests
+"""
+
+    @staticmethod
+    def _generate_db_logs(latency: int) -> str:
+        """Generate sample logs for database latency incident"""
+        timestamp = "2024-01-15 10:30:45"
+        return f"""
+[{timestamp}] INFO database: Query latency: {latency}ms
+[{timestamp}] WARN database: Connection pool exhausted
+[{timestamp}] ERROR database: Query timeout after 30 seconds
+[{timestamp}] WARN database: Deadlock detected in transaction
+[{timestamp}] INFO database: Rolling back slow transactions
+"""
