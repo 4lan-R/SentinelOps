@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.schemas.incident import IncidentCreate
 from app.services.incident import IncidentService
 from app.services.ai import AIIncidentAnalyzer
+from app.services.log import LogService
 
 
 class MonitoringSimulator:
@@ -104,6 +105,7 @@ class MonitoringSimulator:
                 service=service
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, service, incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -141,6 +143,7 @@ class MonitoringSimulator:
                 service=service
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, service, incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -178,6 +181,7 @@ class MonitoringSimulator:
                 service=service
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, service, incident_id=incident["id"])
 
             # Perform AI analysis
             try:
@@ -213,6 +217,7 @@ class MonitoringSimulator:
                 service="database"
             )
             incident = IncidentService.create_incident(db, incident_data)
+            LogService.create_logs_from_text(db, logs, "database", incident_id=incident["id"])
 
             # Perform AI analysis
             try:

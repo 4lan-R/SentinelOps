@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum
+from sqlalchemy.orm import relationship
 from app.core.database import Base
 import enum
 
@@ -31,6 +32,7 @@ class Incident(Base):
     status = Column(String(50), nullable=False, index=True, default="open")
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    logs = relationship("LogEntry", back_populates="incident", cascade="all, delete-orphan")
 
     def to_dict(self) -> dict:
         """Convert incident to dictionary"""
